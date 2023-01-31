@@ -1,4 +1,3 @@
-#include "half.hpp"
 #include <floatx.hpp>
 
 
