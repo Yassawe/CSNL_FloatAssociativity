@@ -47,9 +47,9 @@ void runExperiment(int N, int M, int R){
     vector<datatype> sums(R);
 
     float avSTD = 0;
-    float maxSTD = 1; 
+    float maxSTD = 0; 
     float avRange = 0;
-    float maxRange = 1;
+    float maxRange = 0;
 
     for(int m = 0; m<M; ++m){
         //init
