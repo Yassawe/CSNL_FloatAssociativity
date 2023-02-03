@@ -13,6 +13,7 @@ typedef flx::floatx<8,7> datatype;
 
 using namespace std;
 
+
 datatype makeSum(vector<datatype>& data, vector<int>& order, int N){
     datatype sum = 0;
     for(int i = 0; i<N; ++i){
@@ -36,18 +37,16 @@ float getSTD(vector<datatype> &sums, int R){
 }
 
 
-int main(){
-    int N = 8; // number of elements in test array
-    int M = 1000; // how many times to repeat
-    int R = 1000; // orders
-
-    srand(0);
+void runExperiment(int N, int M, int R){
+    
+    //srand(20214229);
 
     vector<datatype> data(N);
     vector<int> order(N);
 
     vector<datatype> sums(R);
     vector<float> stdvar(M); 
+    vector<float> ranges(M);
 
     for(int m = 0; m<M; ++m){
         //init
@@ -56,29 +55,57 @@ int main(){
             data[i] = (datatype) (rand()/(RAND_MAX-1.0)); 
         }
 
+        float minV = 1; 
+        float maxV = 0;
+
         //random non-repeating permutations
-        auto rng = std::default_random_engine {};
+        auto rng = default_random_engine {};
         for(int r = 0; r<R; ++r){
             sums[r]=makeSum(data, order, N); 
-            std::shuffle(std::begin(order), std::end(order), rng);
+            shuffle(begin(order), end(order), rng);
+            if (sums[r]<minV) minV = sums[r];
+            if (sums[r]>maxV) maxV = sums[r]; 
         }
-
-        // datatype sInOrder = makeSum(data, order, N);
-        // std::reverse(order.begin(), order.end());
-        // datatype sRevOrder = makeSum(data, order, N);
-
-
-        // stdvar[m] = std::abs((float)(sInOrder-sRevOrder)); 
-
-        stdvar[m] = getSTD(sums, R);   
+ 
+        stdvar[m] = getSTD(sums, R);  
+        ranges[m] = (float)(maxV-minV); 
     }
 
     //calculate mean of variances
-    float av = 0;
+    float avSTD = 0;
+    float maxSTD = stdvar[0]; 
+    float avRange = 0;
+    float maxRange = ranges[0];
+
     for(int m = 0; m<M; ++m){
-        av+=stdvar[m];
+        avSTD+=stdvar[m];
+        avRange+=ranges[m];
+
+        if (stdvar[m]>maxSTD) maxSTD = stdvar[m];
+        if (ranges[m]>maxRange) maxRange = ranges[m];
     }
-    av/=M;
-    std::cout<<"standard deviation: "<<av<<std::endl;
+    avSTD/=M;
+    avRange/=M;
+
+    cout<<"\nN = "<<N<<endl;
+    cout<<"Average Standard Deviation = "<<avSTD<<endl;
+    cout<<"Maximum Standard Deviation = " <<maxSTD<<endl;
+    cout<<"Average range of sum = "<<avRange<<endl;
+    cout<<"Maximum range of sum = "<<maxRange<<endl;
+}
+
+
+int main(){
+    
+    int Ns[6] = {16, 64, 256, 512, 1024, 4096};
+    int M = 1000;
+    int R = 1000;
+
+    cout<<"BFLOAT16"<<endl;
+
+    for(int i = 0; i<6; ++i){
+        runExperiment(Ns[i], M, R);
+    }
+
     return 0;
 }
