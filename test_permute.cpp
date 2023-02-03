@@ -45,8 +45,11 @@ void runExperiment(int N, int M, int R){
     vector<int> order(N);
 
     vector<datatype> sums(R);
-    vector<float> stdvar(M); 
-    vector<float> ranges(M);
+
+    float avSTD = 0;
+    float maxSTD = 1; 
+    float avRange = 0;
+    float maxRange = 1;
 
     for(int m = 0; m<M; ++m){
         //init
@@ -57,7 +60,8 @@ void runExperiment(int N, int M, int R){
 
         float minV = 1; 
         float maxV = 0;
-
+        float stdev =  0;
+        float r = 0;
         //random non-repeating permutations
         auto rng = default_random_engine {};
         for(int r = 0; r<R; ++r){
@@ -66,24 +70,17 @@ void runExperiment(int N, int M, int R){
             if (sums[r]<minV) minV = sums[r];
             if (sums[r]>maxV) maxV = sums[r]; 
         }
- 
-        stdvar[m] = getSTD(sums, R);  
-        ranges[m] = (float)(maxV-minV); 
+
+        stdev = getSTD(sums, R);
+        r = (float)(maxV-minV);
+
+        avSTD+=stdev;
+        if (stdev>maxSTD) maxSTD=stdev;
+
+        avRange+=r;
+        if (r>maxRange) maxRange=r;  
     }
 
-    //calculate mean of variances
-    float avSTD = 0;
-    float maxSTD = stdvar[0]; 
-    float avRange = 0;
-    float maxRange = ranges[0];
-
-    for(int m = 0; m<M; ++m){
-        avSTD+=stdvar[m];
-        avRange+=ranges[m];
-
-        if (stdvar[m]>maxSTD) maxSTD = stdvar[m];
-        if (ranges[m]>maxRange) maxRange = ranges[m];
-    }
     avSTD/=M;
     avRange/=M;
 
