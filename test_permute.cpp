@@ -55,7 +55,7 @@ void runExperiment(int N, int M, int R){
         //init
         for(int i = 0; i<N; ++i){
             order[i] = i;
-            data[i] = (datatype) (rand()/(RAND_MAX)*2.0-1.0); 
+            data[i] = (datatype) (rand()/(RAND_MAX-1.0)*2-1.0); 
         }
 
         float minV = 1; 
