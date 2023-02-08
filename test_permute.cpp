@@ -6,10 +6,10 @@
 #include <cmath>
 
 // bfloat16
-typedef flx::floatx<8,7> datatype;
+// typedef flx::floatx<8,7> datatype;
 
 // float16
-// typedef flx::floatx<5,11> datatype;
+typedef flx::floatx<5,10> datatype;
 
 using namespace std;
 
@@ -55,7 +55,7 @@ void runExperiment(int N, int M, int R){
         //init
         for(int i = 0; i<N; ++i){
             order[i] = i;
-            data[i] = (datatype) (rand()/(RAND_MAX-1.0)); 
+            data[i] = (datatype) (rand()/(RAND_MAX)*2.0-1.0); 
         }
 
         float minV = 1; 
@@ -98,7 +98,7 @@ int main(){
     int M = 1000;
     int R = 1000;
 
-    cout<<"BFLOAT16"<<endl;
+    cout<<"FLOAT16"<<endl;
 
     for(int i = 0; i<6; ++i){
         runExperiment(Ns[i], M, R);
