@@ -4,12 +4,13 @@
 #include <vector>
 #include <iostream>
 #include <cmath>
+#include <iomanip>    
 
 // bfloat16
-// typedef flx::floatx<8,7> datatype;
+typedef flx::floatx<8,7> datatype;
 
 // float16
-typedef flx::floatx<5,10> datatype;
+// typedef flx::floatx<5,10> datatype;
 
 using namespace std;
 
@@ -30,16 +31,18 @@ float getSTD(vector<datatype> &sums, int R){
     mean/=R;
     float st = 0;
     for(int r = 0; r<R; ++r){
-        st+=(sums[r]-mean)*(sums[r]-mean);
+        st+= pow((float)(sums[r]-mean),2);
     }
 
-    return sqrt(st)/sqrt(R);   
+    return sqrt(st)/sqrt(R); 
 }
 
 
 void runExperiment(int N, int M, int R){
-    
-    //srand(20214229);
+
+    std::mt19937 gen(time(NULL)); 
+    std::uniform_real_distribution<> dis(-3, 3);
+
 
     vector<datatype> data(N);
     vector<int> order(N);
@@ -55,20 +58,22 @@ void runExperiment(int N, int M, int R){
         //init
         for(int i = 0; i<N; ++i){
             order[i] = i;
-            data[i] = (datatype) (rand()/(RAND_MAX-1.0)*2-1.0); 
+            data[i] = (datatype) dis(gen); 
         }
 
-        float minV = 1; 
-        float maxV = 0;
+        float minV = INFINITY; 
+        float maxV = -INFINITY;
         float stdev =  0;
         float r = 0;
         //random non-repeating permutations
-        auto rng = default_random_engine {};
+        std::mt19937 rng(time(NULL));
         for(int r = 0; r<R; ++r){
             sums[r]=makeSum(data, order, N); 
             shuffle(begin(order), end(order), rng);
             if (sums[r]<minV) minV = sums[r];
-            if (sums[r]>maxV) maxV = sums[r]; 
+            if (sums[r]>maxV) maxV = sums[r];
+
+            //cout<<std::setprecision(20)<<sums[r]<<endl; 
         }
 
         stdev = getSTD(sums, R);
@@ -89,18 +94,19 @@ void runExperiment(int N, int M, int R){
     cout<<"Maximum Standard Deviation = " <<maxSTD<<endl;
     cout<<"Average range of sum = "<<avRange<<endl;
     cout<<"Maximum range of sum = "<<maxRange<<endl;
+    cout<<"\n"<<endl;
 }
 
 
 int main(){
     
-    int Ns[6] = {16, 64, 256, 512, 1024, 4096};
-    int M = 1000;
+    int Ns[7] = {16, 64, 256, 512, 1024, 4096, 16384};
+    int M = 100;
     int R = 1000;
 
-    cout<<"FLOAT16"<<endl;
+    cout<<"BFLOAT16"<<endl;
 
-    for(int i = 0; i<6; ++i){
+    for(int i = 0; i<7; ++i){
         runExperiment(Ns[i], M, R);
     }
 
