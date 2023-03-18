@@ -5,7 +5,6 @@
 #include <iostream>
 #include <cmath>
 #include <iomanip>  
-#include <boost/math/distributions/laplace.hpp>
 using namespace std;
 
 
@@ -19,9 +18,9 @@ mt19937 RNG_order(20214229);
 typedef flx::floatx<5,10> datatype;
 
 
-double cosineSimilarity(const vector<datatype>& v1, const vector<datatype>& v2) {
+double cosineSimilarity(const vector<datatype>& v1, const vector<datatype>& v2, int M) {
     double dotProduct = 0.0, norm1 = 0.0, norm2 = 0.0;
-    for (int i = 0; i < v1.size(); i++) {
+    for (int i = 0; i < M; ++i) {
         dotProduct += v1[i] * v2[i];
         norm1 += v1[i] * v1[i];
         norm2 += v2[i] * v2[i];
@@ -29,12 +28,12 @@ double cosineSimilarity(const vector<datatype>& v1, const vector<datatype>& v2) 
     return dotProduct / (sqrt(norm1) * sqrt(norm2));
 }
 
-double averagePairwiseCosineSimilarity(const vector<vector<datatype>>& sums) {
+double averagePairwiseCosineSimilarity(const vector<vector<datatype>>& sums, int R, int M) {
     double sumSimilarities = 0.0;
     int count = 0;
-    for (int i = 0; i < sums.size(); i++) {
-        for (int j = i + 1; j < sums.size(); j++) {
-            double similarity = cosineSimilarity(sums[i], sums[j]);
+    for (int i = 0; i < R; ++i) {
+        for (int j = i + 1; j < R; ++j) {
+            double similarity = cosineSimilarity(sums[i], sums[j], M);
             sumSimilarities += similarity;
             count++;
         }
@@ -93,8 +92,13 @@ void runExperiment(int N, int M, int R){
 
     for (int r = 0; r<R; ++r){
         sums[r] = makeSum(data, order, N, M);
-        shuffle(order.begin(), order.end(), RNG_order); // probability of repeating is very low, but not 0%. ok for now.
+        shuffle(order.begin(), order.end(), RNG_order); // probability of repeating is very low, but not 0. ok for now.
     }
+
+    double res = averagePairwiseCosineSimilarity(sums, R, M);
+
+    cout<<"N = " << N << endl;
+    cout<<"Average Pairwise Cosine Similarity = " << res << endl;
 }
 
 
