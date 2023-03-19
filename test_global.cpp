@@ -19,13 +19,14 @@ typedef flx::floatx<5,10> datatype;
 
 
 double cosineSimilarity(const vector<datatype>& v1, const vector<datatype>& v2, int M) {
-    double dotProduct = 0.0, norm1 = 0.0, norm2 = 0.0;
+    double dotProduct = 0.0;
+    double norm1 = 0.0, norm2 = 0.0;
     for (int i = 0; i < M; ++i) {
         dotProduct += v1[i] * v2[i];
         norm1 += v1[i] * v1[i];
         norm2 += v2[i] * v2[i];
     }
-    return dotProduct / (sqrt(norm1) * sqrt(norm2));
+    return dotProduct / (sqrt(norm1) * sqrt(norm2)); 
 }
 
 double averagePairwiseCosineSimilarity(const vector<vector<datatype>>& sums, int R, int M) {
@@ -66,13 +67,13 @@ void generateRandomNumbers(vector<vector<datatype>>& data, int N, int M){
 
     //TODO: Laplace Distribution
 
-    // uniform_real_distribution<datatype> dis(-1, 1);
-    normal_distribution<datatype> distro(mean, std);
+    // uniform_real_distribution<float> distro(-10, 10);
+    normal_distribution<float> distro(mean, std);
 
     // KEEP IN MIND: GRADS THAT ARE OF THE SAME IDX, ARE CLOSE IN REAL ML WORKLOADS, HERE IT IS NOT THE CASE. DOES IT MATTER?
     for(int i = 0; i<N; ++i){
         for (int j = 0; j<M; ++j){
-            data[i][j] = distro(RNG_distro);
+            data[i][j] = (datatype) distro(RNG_distro);
         }
     }
 }
@@ -81,7 +82,7 @@ void generateRandomNumbers(vector<vector<datatype>>& data, int N, int M){
 void runExperiment(int N, int M, int R){
 
     vector<vector<datatype>> data(N, vector<datatype>(M));
-    vector<vector<datatype>> sums(R, vector<datatype> M);
+    vector<vector<datatype>> sums(R, vector<datatype> (M));
     
     vector<int> order(N);
     for (int device = 0; device<N; ++device){
@@ -98,20 +99,21 @@ void runExperiment(int N, int M, int R){
     double res = averagePairwiseCosineSimilarity(sums, R, M);
 
     cout<<"N = " << N << endl;
-    cout<<"Average Pairwise Cosine Similarity = " << res << endl;
+    cout<<"Average Pairwise Cosine Disimilarity = " << 1.0-res << endl;
+    // getting weird results, how can it be larger than 1??
 }
 
 
 int main(){
     
-    int Ns[7] = {4, 8, 16, 64, 256, 512, 1024};
+    int Ns[8] = {4, 8, 16, 64, 256, 512, 1024, 4096};
     
     int M = 1000;
-    int R = 10;
+    int R = 20;
 
     cout<<"FLOAT16"<<endl;
 
-    for(int i = 0; i<7; ++i){
+    for(int i = 0; i<8; ++i){
         runExperiment(Ns[i], M, R);
     }
 
